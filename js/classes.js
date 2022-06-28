@@ -14,9 +14,9 @@ class cont {
     this.cont.setAttribute("commentName", this.name);
     this.cont.innerHTML = `
             <div class="rate">
-              <i class="fa-solid fa-angle-up"></i>
+              <i class="fa-solid fa-angle-up increase"></i>
               <div class="rate-value">${this.rate}</div>
-              <i class="fa-solid fa-angle-down"></i>
+              <i class="fa-solid fa-angle-down decrease"></i>
             </div>
             <div class="content">
               <div class="title">
@@ -64,15 +64,15 @@ class comment extends cont {
 }
 comment.constructor = cont.constructor;
 class reply extends cont {
-  constructor(id, name, rate, content, me, date, replyToId, mention) {
+  constructor(id, name, rate, content, me, date, replyToId) {
     super(id, name, rate, content, me, date);
     this.replyToId = replyToId;
-    this.mention = mention;
   }
   add() {
     this.rplToElement = document.querySelector(
       `.cont[commentId = '${this.replyToId}']`
     );
+    this.mention = this.rplToElement.getAttribute("commentName");
     this.replys = document.querySelector(
       `.replys[replysToId='${this.replyToId}']`
     );
