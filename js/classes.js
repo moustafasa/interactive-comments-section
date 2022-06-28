@@ -19,8 +19,8 @@ class cont {
               <i class="fa-solid fa-angle-down decrease"></i>
             </div>
             <div class="content">
-              <div class="title">
-                <div class="left ${this.me === true ? "you" : ""}">
+              <div class="title ${this.me === true ? "you" : ""}">
+                <div class="left">
                   <img
                     src="images/avatars/image-${this.name}.webp"
                     class="avatar"

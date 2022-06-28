@@ -71,6 +71,9 @@ body {
   flex-direction: column;
   align-items: center;
   border-radius: 5px;
+  margin-right: 25px;
+  margin-left: 25px;
+  padding: 10px;
 }
 .cont .rate i {
   color: var(--Light-grayish-blue);
@@ -86,8 +89,6 @@ body {
   padding: 10px 0;
   color: var(--Moderate-blue);
   font-weight: 500;
-  padding-right: 25px;
-  padding-left: 25px;
 }
 .cont .content {
   display: flex;
@@ -151,7 +152,8 @@ body {
   margin-left: 25px;
 }
 .cont .content .title .right .button:active,
-.add .button:active {
+.add .button:active,
+.confirmation .buttons a:active {
   opacity: 0.5;
 }
 .cont .content .title .right .button img {
@@ -241,4 +243,58 @@ p:read-write:focus {
 .add .button:active,
 .update-btn:active {
   opacity: 0.5;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 150;
+  background-color: #00000047;
+}
+.confirmation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  background-color: var(--White);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  min-width: 300px;
+}
+.confirmation .delete-head {
+  margin: 0;
+  padding: 0;
+  color: var(--Dark-blue);
+  font-weight: 500;
+}
+.confirmation .delete-conf-ques {
+  margin: 20px 0 15px;
+  line-height: 1.7;
+  font-size: 20px;
+  color: var(--Grayish-Blue);
+}
+.confirmation .buttons {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.confirmation .buttons a {
+  display: block;
+  padding: 15px 40px;
+  color: white;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.confirmation .buttons .no {
+  background-color: var(--Grayish-Blue);
+}
+.confirmation .buttons .yes {
+  background-color: var(--Soft-Red);
 }
