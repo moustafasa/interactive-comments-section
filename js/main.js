@@ -55,22 +55,71 @@ app.then(() => {
   buttons.forEach((ele) => {
     ele.addEventListener("click", (e) => {
       if (e.currentTarget.classList.contains("edit")) {
-        let p = e.currentTarget.parentElement.parentElement.nextElementSibling;
-        p.setAttribute("contentEditable", "true");
-        p.focus();
-        let pContent = p.innerHTML;
-        let updateButton = document.createElement("a");
-        updateButton.href = "#";
-        updateButton.className = "update-btn";
-        updateButton.innerText = "update";
-        p.after(updateButton);
-        p.onblur = (e) => {
-          e.currentTarget.removeAttribute("contentEditable");
-          updateButton.remove();
-          p.innerHTML = pContent;
-        };
+        console.log(e.currentTarget.contentEditable);
+        /////////////////////////// edit button
+        let textArea =
+          e.currentTarget.parentElement.parentElement.nextElementSibling;
+        // to sure not to make more than one update button
+        if (textArea.contentEditable === "inherit") {
+          let pContent = textArea.innerHTML;
+          textArea.setAttribute("contentEditable", "true");
+          textArea.focus();
+          let updateButton = document.createElement("a");
+          updateButton.href = "#";
+          updateButton.className = "update-btn";
+          updateButton.innerText = "update";
+          textArea.after(updateButton);
+          textArea.onblur = () => {
+            textArea.focus();
+          };
+          textArea.parentElement.parentElement.addEventListener(
+            "click",
+            (e) => {
+              e.stopPropagation();
+            }
+          );
+          document.addEventListener("click", (e) => {
+            if (e.currentTarget != textArea.parentElement.parentElement) {
+              textArea.removeAttribute("contentEditable");
+              textArea.innerHTML = pContent;
+              updateButton.remove();
+            }
+          });
+          // get updated element
+          updateButton.addEventListener("click", (e) => {
+            textArea.removeAttribute("contentEditable");
+            updateButton.remove();
+          });
+        }
       } else {
-        // reply
+        ////////////////////////// reply button
+        let cont =
+          e.currentTarget.parentElement.parentElement.parentElement
+            .parentElement;
+        // to sure not to make more than one rplbox
+        if (
+          document.querySelector(".add:not(.send)") !== cont.nextElementSibling
+        ) {
+          let rplBox = document.querySelector(".add.send").cloneNode(true);
+          rplBox.lastElementChild.innerText = "reply";
+          cont.after(rplBox);
+          rplBox.addEventListener("click", (e) => e.stopPropagation());
+          rplBox.classList.remove("send");
+          document.addEventListener("click", (el) => {
+            if (
+              el.currentTarget != rplBox &&
+              el.currentTarget != e.currentTarget
+            ) {
+              rplBox.remove();
+            }
+          });
+          // get send button
+          let replyButton = rplBox.children[2];
+          // get textArea
+          let textArea = rplBox.children[1];
+          // set new reply
+          replyButton.addEventListener("click", () => {});
+        }
       }
     });
   });
