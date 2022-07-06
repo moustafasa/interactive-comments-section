@@ -47,20 +47,21 @@ app.then((app) => {
   // set comment
   let myPhoto = document.querySelector(".add.send .logo");
   myPhoto.src = app.currentUser.image.png;
+  return app.currentUser;
 });
 
 // make edit and reply button code
-app.then(() => {
+app.then((currentUser) => {
   let buttons = [...document.querySelectorAll(".cont .button:not(.delete)")];
   buttons.forEach((ele) => {
     ele.addEventListener("click", (e) => {
       if (e.currentTarget.classList.contains("edit")) {
-        console.log(e.currentTarget.contentEditable);
         /////////////////////////// edit button
         let textArea =
           e.currentTarget.parentElement.parentElement.nextElementSibling;
         // to sure not to make more than one update button
         if (textArea.contentEditable === "inherit") {
+          // create update box
           let pContent = textArea.innerHTML;
           textArea.setAttribute("contentEditable", "true");
           textArea.focus();
@@ -72,6 +73,7 @@ app.then(() => {
           textArea.onblur = () => {
             textArea.focus();
           };
+          // remove on blur
           textArea.parentElement.parentElement.addEventListener(
             "click",
             (e) => {
@@ -89,6 +91,7 @@ app.then(() => {
           updateButton.addEventListener("click", (e) => {
             textArea.removeAttribute("contentEditable");
             updateButton.remove();
+            // make mention
           });
         }
       } else {
@@ -100,11 +103,15 @@ app.then(() => {
         if (
           document.querySelector(".add:not(.send)") !== cont.nextElementSibling
         ) {
+          // create rpl box
           let rplBox = document.querySelector(".add.send").cloneNode(true);
           rplBox.lastElementChild.innerText = "reply";
           cont.after(rplBox);
-          rplBox.addEventListener("click", (e) => e.stopPropagation());
           rplBox.classList.remove("send");
+          rplBox.children[1].focus();
+
+          // remove on blur
+          rplBox.addEventListener("click", (e) => e.stopPropagation());
           document.addEventListener("click", (el) => {
             if (
               el.currentTarget != rplBox &&
@@ -118,7 +125,19 @@ app.then(() => {
           // get textArea
           let textArea = rplBox.children[1];
           // set new reply
-          replyButton.addEventListener("click", () => {});
+          console.log(cont);
+          replyButton.addEventListener("click", (e) => {
+            let rplCont = new reply(
+              null,
+              currentUser.username,
+              0,
+              textArea.value,
+              true,
+              Date.now(),
+              cont.getAttribute("commentid")
+            );
+            rplCont.add();
+          });
         }
       }
     });

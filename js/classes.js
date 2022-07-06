@@ -1,11 +1,16 @@
 class cont {
   constructor(id, name, rate, content, me, date) {
-    this.id = id;
+    this.id = id || this.getId();
     this.name = name;
     this.rate = rate;
     this.content = content;
     this.me = name === me ? true : false;
     this.date = date;
+  }
+  getId() {
+    // get last id
+
+    return 23;
   }
   Create() {
     this.cont = document.createElement("div");
