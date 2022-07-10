@@ -1,4 +1,9 @@
-import { comment, reply } from "./classes.js";
+import { comment, reply, commentEvents } from "./classes.js";
+
+//////////////////////////////////////////////////
+//////////////// incomplete tasks ////////////////
+// there is bug in edit button in new reply //////
+// there is bug in increase and decrease buttons /
 
 // retrive data from api and set it to dom
 let jsonFile = "data.json";
@@ -48,6 +53,11 @@ app.then((app) => {
   let myPhoto = document.querySelector(".add.send .logo");
   myPhoto.src = app.currentUser.image.png;
   return app.currentUser;
+});
+
+// make comment events
+app.then(() => {
+  new commentEvents();
 });
 
 // make edit and reply button code
@@ -124,91 +134,25 @@ app.then((currentUser) => {
           let replyButton = rplBox.children[2];
           // get textArea
           let textArea = rplBox.children[1];
-          // set new reply
-          console.log(cont);
+          // on reply button click
           replyButton.addEventListener("click", (e) => {
+            // remove rplBox
+            rplBox.remove();
+            // set new reply
             let rplCont = new reply(
               null,
-              currentUser.username,
+              currentUser.currentUser.username,
               0,
               textArea.value,
-              true,
-              Date.now(),
+              currentUser.currentUser.username,
+              "now",
               cont.getAttribute("commentid")
             );
             rplCont.add();
+            // make buttons events work in new replys
+            new commentEvents();
           });
         }
-      }
-    });
-  });
-});
-
-// make delete button code
-app.then(() => {
-  let deleteButton = [...document.querySelectorAll(".cont .button.delete")];
-  deleteButton.forEach((e) => {
-    e.addEventListener("click", (e) => {
-      let cont =
-        e.currentTarget.parentElement.parentElement.parentElement.parentElement;
-      // pop up confirmation dialoge
-      let dialoge = document.createElement("div");
-      dialoge.className = "confirmation";
-      dialoge.innerHTML = `
-        <h2 class='delete-head'>Delete comment</h2>
-        <p class='delete-conf-ques'>
-          Are you sure you want to delete this comment?
-          This will remove the comment and can't be undone.
-        </p>
-        <div class='buttons'>
-          <a href='#' class='no'>no, cancel</a>
-          <a href='#' class='yes'>yes, delete</a>
-        </div>
-      `;
-      let overlay = document.createElement("div");
-      overlay.className = "overlay";
-      document.body.append(dialoge);
-      document.body.append(overlay);
-      // get confirmation value
-      let buttons = [...document.querySelectorAll(".confirmation a")];
-      buttons.forEach((a) => {
-        a.addEventListener("click", (e) => {
-          dialoge.remove();
-          overlay.remove();
-          if (e.currentTarget.classList.contains("yes")) {
-            cont.remove();
-          }
-        });
-      });
-    });
-  });
-});
-
-// increase and decrease rate
-app.then(() => {
-  let inAndDeBtn = [...document.querySelectorAll(".cont .rate i")];
-  inAndDeBtn.forEach((e) => {
-    e.addEventListener("click", (e) => {
-      let rateElement = e.currentTarget.parentElement;
-      let rateValue = rateElement.children[1];
-      if (!e.currentTarget.classList.contains("active")) {
-        // if i is increase
-        if (e.currentTarget.classList.contains("increase")) {
-          rateValue.innerHTML = +rateValue.innerHTML + 1;
-        } else {
-          rateValue.innerHTML = +rateValue.innerHTML - 1;
-        }
-        // remove active class from other i
-        [...rateElement.children].forEach((e) => {
-          e.classList.remove("active");
-        });
-        // add active class for i that clicked
-        e.currentTarget.classList.add("active");
-      } else {
-        e.currentTarget.classList.remove("active");
-        e.currentTarget.classList.contains("increase")
-          ? (rateValue.innerHTML = +rateValue.innerHTML - 1)
-          : (rateValue.innerHTML = +rateValue.innerHTML + 1);
       }
     });
   });
