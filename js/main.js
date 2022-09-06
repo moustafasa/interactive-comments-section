@@ -4,7 +4,6 @@ fetch("data.json")
     return data.json();
   })
   .then((data) => {
-    console.log(data);
     data["comments"].forEach((com) => {
       let addBox = document.querySelector(".add-comment");
       let you = com.user.username === data["currentUser"]["username"];
