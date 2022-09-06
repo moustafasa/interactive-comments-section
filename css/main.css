@@ -1,0 +1,291 @@
+/* start global rules */
+
+body {
+  font-family: "Rubik", sans-serif;
+}
+p,
+textarea {
+  font-size: 16px;
+}
+img {
+  max-width: 100%;
+}
+a {
+  text-decoration: none;
+}
+
+*,
+*::after,
+*::before {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.container {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Small */
+@media (min-width: 768px) {
+  .container {
+    width: 750px;
+  }
+}
+/* Medium */
+@media (min-width: 992px) {
+  .container {
+    width: 970px;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    width: 1170px;
+  }
+}
+/* end global rules */
+/* start variables */
+:root {
+  /* primary */
+  --moderate-blue: hsl(238, 40%, 52%);
+  --soft-red: hsl(358, 79%, 66%);
+  --light-grayish-blue: hsl(239, 57%, 85%);
+  --pale-red: hsl(357, 100%, 86%);
+  /* neutral */
+  --dark-blue: hsl(212, 24%, 26%);
+  --grayish-blue: hsl(211, 10%, 45%);
+  --light-gray: hsl(223, 19%, 93%);
+  --very-light-gray: hsl(228, 33%, 97%);
+  --white: hsl(0, 0%, 100%);
+}
+/* end variables */
+.comments {
+  background-color: var(--very-light-gray);
+  padding: 15px 0;
+  height: 100vh;
+}
+
+.comments .container .comment .box {
+  flex-direction: column;
+}
+.comments .container .comment .box,
+.comments .container .add-comment {
+  background-color: var(--white);
+  padding: 25px;
+  margin-top: 20px;
+  position: relative;
+  border-radius: 10px;
+  display: flex;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .box {
+    flex-direction: row-reverse;
+  }
+}
+/* start buttns */
+.comments .container .comment .box .btns {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  transform: translateY(-50%);
+}
+@media (min-width: 768px) {
+  .comments .container .comment .box .btns {
+    bottom: auto;
+    top: 25px;
+    transform: translateY(25%);
+  }
+}
+.comments .container .comment .box .btns a:active,
+button:active {
+  opacity: 0.5;
+}
+.comments .container .comment .box .btns a {
+  text-transform: capitalize;
+  font-weight: 500;
+  font-size: 17px;
+}
+.comments .container .comment .box .btns a img {
+  position: relative;
+  right: 4px;
+}
+.comments .container .comment .box .btns .reply-btn,
+.comments .container .comment .comment .btns .edit-btn {
+  color: var(--moderate-blue);
+}
+.comments .container .comment .box .btns .delete-btn {
+  color: var(--soft-red);
+  position: relative;
+  right: 20px;
+}
+
+/* end buttons */
+/* start comment body */
+
+.comments .container .comment .box .comment-body .info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.comments .container .comment .box .comment-body .info .img {
+  display: flex;
+  align-items: center;
+}
+.comments .container .comment .box .comment-body .info .img img {
+  height: 30px;
+}
+
+.comments .container .comment .box .comment-body .info .img h2.name {
+  margin: 0 17px 0 10px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--dark-blue);
+}
+.comments .container .comment .box.you .comment-body .info .img h2.name:after {
+  content: "you";
+  margin-left: 7px;
+  color: var(--white);
+  background-color: var(--moderate-blue);
+  font-weight: 400;
+  padding: 3px 7px;
+  display: inline-block;
+  font-size: 15px;
+  border-radius: 2px;
+}
+.comments .container .comment .box .comment-body .info .time,
+p,
+textarea {
+  color: var(--grayish-blue);
+}
+.comments .container .comment .box .comment-body .content {
+  line-height: 1.5;
+  margin: 15px 0;
+}
+.comments .container .comment .box .comment-body .content a {
+  font-weight: 500;
+  color: var(--moderate-blue);
+}
+
+/* end comment body */
+/* start rate */
+.comments .container .comment .box .rate {
+  background-color: var(--very-light-gray);
+  width: fit-content;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  height: fit-content;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .box .rate {
+    flex-direction: column;
+    margin-right: 25px;
+  }
+}
+.comments .container .comment .box .rate a {
+  font-size: 15px;
+  color: var(--light-grayish-blue);
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.comments .container .comment .box .rate a:hover {
+  color: var(--moderate-blue);
+}
+.comments .container .comment .box .rate span {
+  display: block;
+  padding: 0 20px;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .box .rate span {
+    padding: 10px 5px;
+  }
+}
+/* end rate */
+/* start replys */
+.comments .container .comment .replys {
+  padding-left: 17px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .replys {
+    padding-left: 75px;
+  }
+}
+.comments .container .comment .replys::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: var(--light-gray);
+  left: 0;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .replys::before {
+    left: 37.5px;
+  }
+}
+/* end replys */
+/* start add comment */
+.add-comment {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .add-comment {
+    align-items: flex-start;
+  }
+}
+.add-comment .avatar {
+  width: 35px;
+}
+@media (min-width: 768px) {
+  .add-comment .avatar {
+    position: absolute;
+    left: 25px;
+    top: 25px;
+    width: 40px;
+  }
+}
+.add-comment .avatar img {
+}
+.add-comment textarea {
+  resize: none;
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 5px;
+  outline: none;
+  border: 2px solid var(--light-gray);
+  margin-bottom: 15px;
+}
+.add-comment textarea:focus {
+  border-color: var(--moderate-blue);
+}
+@media (min-width: 768px) {
+  .add-comment textarea {
+    width: auto;
+    flex: 1;
+    margin: 0 20px 0 60px;
+  }
+}
+.add-comment .send {
+  display: block;
+  padding: 15px 35px;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--moderate-blue);
+  color: white;
+  font-size: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+/* end add comment */
