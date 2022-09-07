@@ -68,14 +68,14 @@ html {
 .comments {
   background-color: var(--very-light-gray);
   padding: 15px 0;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .comments .container .comment .box {
   flex-direction: column;
 }
 .comments .container .comment .box,
-.comments .container .add-comment {
+.comments .container .add-box {
   background-color: var(--white);
   padding: 25px;
   margin-top: 20px;
@@ -103,8 +103,12 @@ html {
   }
 }
 .comments .container .comment .box .btns a:active,
-button:active {
+button:active,
+.comments .container .comment .box .btns a.active {
   opacity: 0.5;
+}
+.comments .container .comment .box .btns a.active {
+  cursor: default;
 }
 .comments .container .comment .box .btns a {
   text-transform: capitalize;
@@ -116,7 +120,7 @@ button:active {
   right: 4px;
 }
 .comments .container .comment .box .btns .reply-btn,
-.comments .container .comment .comment .btns .edit-btn {
+.comments .container .comment .box .btns .edit-btn {
   color: var(--moderate-blue);
 }
 .comments .container .comment .box .btns .delete-btn {
@@ -127,6 +131,12 @@ button:active {
 
 /* end buttons */
 /* start comment body */
+.comments .container .comment .box .comment-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
 .comments .container .comment .box .comment-body .info {
   display: flex;
@@ -170,6 +180,15 @@ textarea {
 .comments .container .comment .box .comment-body .content a {
   font-weight: 500;
   color: var(--moderate-blue);
+}
+.comments .container .comment .box .comment-body .send {
+  align-self: flex-end;
+  margin: 10px 0 20px;
+}
+@media (min-width: 768px) {
+  .comments .container .comment .box .comment-body .send {
+    margin: 0;
+  }
 }
 
 /* end comment body */
@@ -235,49 +254,50 @@ textarea {
 }
 /* end replys */
 /* start add comment */
-.add-comment {
+.add-box {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 }
 @media (min-width: 768px) {
-  .add-comment {
+  .add-box {
     align-items: flex-start;
   }
 }
-.add-comment .avatar {
+.add-box .avatar {
   width: 35px;
 }
 @media (min-width: 768px) {
-  .add-comment .avatar {
+  .add-box .avatar {
     position: absolute;
     left: 25px;
     top: 25px;
     width: 40px;
   }
 }
-.add-comment .avatar img {
-}
-.add-comment textarea {
+
+textarea {
   resize: none;
   width: 100%;
   padding: 15px 20px;
   border-radius: 5px;
   outline: none;
   border: 2px solid var(--light-gray);
+}
+.add-box textarea {
   margin-bottom: 15px;
 }
-.add-comment textarea:focus {
+textarea:focus {
   border-color: var(--moderate-blue);
 }
 @media (min-width: 768px) {
-  .add-comment textarea {
+  .add-box textarea {
     width: auto;
     flex: 1;
     margin: 0 20px 0 60px;
   }
 }
-.add-comment .send {
+.send {
   display: block;
   padding: 15px 35px;
   border-radius: 10px;
