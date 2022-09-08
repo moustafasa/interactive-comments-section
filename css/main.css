@@ -104,11 +104,12 @@ html {
 }
 .comments .container .comment .box .btns a:active,
 button:active,
-.comments .container .comment .box .btns a.active {
+.disabled {
   opacity: 0.5;
 }
-.comments .container .comment .box .btns a.active {
+.disabled {
   cursor: default;
+  pointer-events: none;
 }
 .comments .container .comment .box .btns a {
   text-transform: capitalize;
@@ -215,7 +216,8 @@ textarea {
   transition: 0.5s;
 }
 
-.comments .container .comment .box .rate a:hover {
+.comments .container .comment .box .rate a:hover,
+.comments .container .comment .box .rate a.active {
   color: var(--moderate-blue);
 }
 .comments .container .comment .box .rate span {
@@ -309,3 +311,73 @@ textarea:focus {
   cursor: pointer;
 }
 /* end add comment */
+
+/* start confirm window */
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  background-color: #000000ba;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 1000;
+}
+.confirm-window {
+  background-color: var(--white);
+  padding: 30px 30px;
+  border-radius: 10px;
+  max-width: 353px;
+}
+@media (min-width: 768px) {
+  .confirm-window {
+    max-width: 400px;
+  }
+}
+
+.confirm-window.warning h2 {
+  text-align: center;
+}
+.confirm-window h2 {
+  color: var(--dark-blue);
+  font-weight: 500;
+  text-transform: capitalize;
+  font-size: 20px;
+  margin: 0 0 10px;
+}
+.confirm-window .confirm-msg {
+  text-transform: capitalize;
+  margin: 20px 0 15px;
+  line-height: 1.5;
+}
+.confirm-window .btn-cont {
+  display: flex;
+  justify-content: space-between;
+}
+.confirm-window.warning .btn-cont {
+  justify-content: center;
+}
+.confirm-window button {
+  display: block;
+  padding: 15px 10px;
+  width: calc(96% / 2);
+  border-radius: 10px;
+  border: none;
+  color: var(--white);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.confirm-window button.accept {
+  background-color: var(--soft-red);
+}
+.confirm-window button.cancel {
+  background-color: var(--grayish-blue);
+}
+/* ::-webkit-scrollbar {
+  display: none;
+} */
+/* end confirm window */

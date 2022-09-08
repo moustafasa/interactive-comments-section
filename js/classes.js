@@ -67,6 +67,10 @@ export class comment {
         <img src="./images/icon-delete.svg">
         delete
       `;
+      this.btn.addEventListener("click", (ev) => {
+        this.event2 = new events(ev);
+        this.event2.delete();
+      });
       // create edit button
       this.otherBtn = document.createElement("a");
       this.otherBtn.href = "#";
@@ -108,6 +112,7 @@ export class comment {
     `;
     this.contentP = document.createElement("p");
     this.contentP.classList.add("content");
+    this.contentP.dataset.replyTo = this.replyTo;
     this.contentP.innerHTML = `${
       this.replyTo
         ? '<a href="#" class="mention">@' + this.replyTo + "</a> "
@@ -124,11 +129,19 @@ export class comment {
     this.increase = document.createElement("a");
     this.increase.classList.add("increase");
     this.increase.innerHTML = '<i class="fa-solid fa-plus"></i>';
+    this.increase.addEventListener("click", (ev) => {
+      this.rateEvent = new events(ev);
+      this.rateEvent.rate(1);
+    });
     this.span = document.createElement("span");
     this.span.innerText = this.score;
     this.decrease = document.createElement("a");
     this.decrease.classList.add("decrease");
     this.decrease.innerHTML = '<i class="fa-solid fa-minus"></i>';
+    this.decrease.addEventListener("click", (ev) => {
+      this.rateEvent = new events(ev);
+      this.rateEvent.rate(-1);
+    });
     this.rate.append(this.increase, this.span, this.decrease);
     return this.rate;
   }
@@ -178,8 +191,8 @@ export class events {
     });
     // set event of button
     this.button.addEventListener("click", (ev) => {
-      this.ev = ev;
-      this.add();
+      this.event = new events(ev);
+      this.event.add();
     });
     /*
       1- get add box 
@@ -231,39 +244,6 @@ export class events {
       this.box.scrollIntoView();
     }
   }
-  edit() {
-    // make button unactive
-    this.editBtn = this.ev.currentTarget;
-    this.editBtn.classList.add("active");
-    this.box = this.ev.currentTarget.closest(".box");
-    this.commentBody = this.box.querySelector(".comment-body");
-    this.pContent = this.box.querySelector("p.content");
-    // make textarea to replace pcontent by it
-    this.textarea = document.createElement("textarea");
-    this.textarea.classList.add("content");
-    this.textarea.cols = "30";
-    this.textarea.rows = "3";
-    this.textarea.value = this.pContent.innerText;
-    this.commentBody.replaceChild(this.textarea, this.pContent);
-    this.textarea.focus();
-
-    // make update button
-    this.button = document.createElement("button");
-    this.button.classList.add("send");
-    this.button.innerText = "update";
-
-    this.commentBody.append(this.button);
-    document.addEventListener("click", (ev) => {
-      if (!ev.target.closest(`.box[id='${this.box.id}']`)) {
-        this.#resetEdit();
-      }
-    });
-    this.button.addEventListener("click", (ev) => {
-      this.ev = ev;
-      this.update();
-    });
-  }
-  update() {}
   #validateTextarea() {
     if (this.textarea.value.trim() === "") {
       this.valid = false;
@@ -284,12 +264,220 @@ export class events {
       }
     }
   }
+  edit() {
+    this.ev.currentTarget.classList.add("disabled");
+    this.box = this.ev.currentTarget.closest(".box");
+    this.box.classList.add("editable");
+    this.pContent = this.box.querySelector("p.content");
+    this.commentBody = this.box.querySelector(".comment-body");
+    // set textarea
+    this.textarea = document.createElement("textarea");
+    this.textarea.classList.add("content");
+    this.textarea.value = this.pContent.innerText;
+    this.textarea.rows = 4;
+    this.pContent.replaceWith(this.textarea);
+    this.textarea.focus();
+    this.content = this.pContent.innerText.replace(/\s+/g, " ").trim();
+
+    // set update button
+    this.button = document.createElement("button");
+    this.button.classList.add("send", "disabled");
+    this.button.innerText = "update";
+    this.commentBody.append(this.button);
+    this.button.addEventListener("click", (ev) => {
+      this.event = new events(ev);
+      this.event.pContent = this.pContent;
+      document.removeEventListener("click", this.removeOnBlur);
+      this.event.update();
+    });
+
+    // make button in disabled if no change
+    this.textarea.addEventListener("input", () => {
+      if (this.#ifChange()) {
+        this.button.classList.remove("disabled");
+      } else {
+        this.button.classList.add("disabled");
+      }
+    });
+
+    this.removeOnBlur = (ev) => {
+      if (
+        !ev.target.closest(`.box.editable[id='${this.box.id}']`) &&
+        !ev.target.closest(".confirm-window")
+      ) {
+        if (this.#ifChange()) {
+          if (!document.querySelector(".confirm-window")) {
+            this.OnAccept = () => {
+              this.#resetEdit();
+              document.removeEventListener("click", this.removeOnBlur);
+            };
+            this.#confirm(
+              "you sure you need to ignore msgs",
+              "ignore changes",
+              "yes",
+              "no"
+            );
+          }
+        } else {
+          this.#resetEdit();
+          document.removeEventListener("click", this.removeOnBlur);
+        }
+      }
+    };
+    // check if changed or not
+    document.addEventListener("click", this.removeOnBlur);
+  }
+  update() {
+    this.button = this.ev.currentTarget;
+    this.box = this.button.closest(".box");
+    this.textarea = this.box.querySelector("textarea");
+    this.replyTo = null;
+    this.content = this.textarea.value.trim();
+    if (/@\w+/.test(this.content) && this.pContent.dataset.replyTo) {
+      if (
+        this.content.match(/@\w+/).join().replace("@", "") ===
+        this.pContent.dataset.replyTo
+      ) {
+        this.content = this.content.replace(/@\w+/, "");
+        this.replyTo = this.pContent.dataset.replyTo;
+      }
+    }
+    this.pContent.innerHTML = `${
+      this.replyTo ? `<a href="#" class="mention">@${this.replyTo}</a>` : ""
+    } ${this.content}
+    `;
+    this.#resetEdit();
+  }
+
   #resetEdit() {
-    this.editBtn.classList.remove("active");
+    this.box.querySelector(".edit-btn").classList.remove("disabled");
+    this.textarea.replaceWith(this.pContent);
     this.button.remove();
-    console.log(this.commentBody.querySelector("textarea"));
-    if (this.commentBody.querySelector("textarea")) {
-      this.commentBody.replaceChild(this.pContent, this.textarea);
+    this.box.classList.remove("editable");
+    this.textarea.remove();
+  }
+  delete() {
+    this.deleteBtn = this.ev.currentTarget;
+    this.OnAccept = () => {
+      if (this.deleteBtn.closest(".replys")) {
+        this.deleteBtn.closest(".box").remove();
+      } else {
+        this.deleteBtn.closest(".comment").remove();
+      }
+    };
+    this.#confirm(
+      "are you sure you want to delete this comment? this will remove the comment and can't be undone",
+      "delete comment",
+      "yes, delete",
+      "no, cancel"
+    );
+  }
+  #confirm(confMsg, title, acceptBtn, cancelBtn) {
+    // set overlay window
+    this.overlay = document.createElement("div");
+    this.overlay.classList.add("overlay");
+
+    // set confirm window
+    this.confirmDiv = document.createElement("div");
+    this.confirmDiv.classList.add("confirm-window");
+    // set title
+    this.title = document.createElement("h2");
+    this.title.classList.add("conf-title");
+    this.title.innerText = title;
+    // set confmsg
+    this.confMsg = document.createElement("p");
+    this.confMsg.classList.add("confirm-msg");
+    this.confMsg.innerText = confMsg;
+    // set button cont
+    this.btnCont = document.createElement("div");
+    this.btnCont.classList.add("btn-cont");
+    // append all
+    this.confirmDiv.append(this.title, this.confMsg, this.btnCont);
+
+    // set cancel btn
+    if (cancelBtn) {
+      this.cancelBtn = document.createElement("button");
+      this.cancelBtn.classList.add("cancel");
+      this.cancelBtn.innerText = cancelBtn;
+      this.cancelBtn.addEventListener("click", (ev) =>
+        ev.currentTarget.closest(".overlay").remove()
+      );
+      this.btnCont.append(this.cancelBtn);
+    }
+    // set accept btn
+    if (acceptBtn) {
+      this.acceptBtn = document.createElement("button");
+      this.acceptBtn.classList.add("accept");
+      this.acceptBtn.innerText = acceptBtn;
+      this.acceptBtn.addEventListener("click", (eve) => {
+        this.overlay.remove();
+        this.OnAccept();
+      });
+      this.btnCont.append(this.acceptBtn);
+    }
+    if ((acceptBtn || cancelBtn) && !(acceptBtn && cancelBtn)) {
+      this.confirmDiv.classList.add("warning");
+    }
+    this.overlay.append(this.confirmDiv);
+    document.body.append(this.overlay);
+  }
+  #ifChange() {
+    if (this.textarea.value.trim() !== this.content) {
+      if (this.textarea.value.trim() !== "") {
+        if (/@\w+/.test(this.textarea.value) && /@\w+/.test(this.content)) {
+          if (this.textarea.value.trim() !== this.content.match(/@\w+/)[0]) {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  rate(bonus) {
+    this.btn = this.ev.currentTarget;
+    this.rateElement = this.btn.closest(".rate");
+    this.box = this.btn.closest(".box");
+    this.span = this.rateElement.querySelector("span");
+    if (!this.box.classList.contains("you")) {
+      if (!this.box.classList.contains("rated")) {
+        // not rated
+        this.box.classList.add("rated");
+        this.btn.classList.add("active");
+        this.span.innerText = +this.span.innerText + bonus;
+      } else {
+        // rated
+
+        if (this.btn.classList.contains("active")) {
+          this.title = "undo rating comment";
+          this.msg = "do you need to undo rating this comment?";
+          this.OnAccept = () => {
+            this.btn.classList.remove("active");
+            this.box.classList.remove("rated");
+            this.span.innerText = +this.span.innerText - bonus;
+          };
+        } else {
+          this.title = "change rate of the comment";
+          this.msg = "do you need to change the rate of this comment?";
+          this.OnAccept = () => {
+            this.rateElement
+              .querySelector(".active")
+              .classList.remove("active");
+            this.box.classList.remove("rated");
+            this.span.innerText = +this.span.innerText + bonus;
+            this.btn.click();
+          };
+        }
+        this.#confirm(this.msg, this.title, "yes", "no");
+      }
+    } else {
+      this.#confirm(
+        "sorry, you can't rate your comment",
+        "warrning",
+        null,
+        "ok"
+      );
     }
   }
 }
