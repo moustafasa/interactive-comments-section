@@ -1,3 +1,39 @@
+class getFromLocal {
+  constructor(id) {
+    this.id = id;
+  }
+  checkUpdate(contentP) {
+    if (localStorage["updates"]) {
+      this.updates = JSON.parse(localStorage["updates"]);
+      if (this.id in this.updates) {
+        contentP.innerHTML = this.updates[this.id];
+        return true;
+      }
+    }
+    return false;
+  }
+  checkRate(box, rate, score) {
+    if (localStorage["rates"]) {
+      this.rates = JSON.parse(localStorage["rates"]);
+      if (this.id in this.rates) {
+        if (!(this.rates[this.id] == score)) {
+          box.classList.add("rated");
+          rate.querySelector("span").innerText = this.rates[this.id];
+          rate
+            .querySelector(
+              `${this.rates[this.id] - score > 0 ? ".increase" : ".decrease"}`
+            )
+            .classList.add("active");
+          return true;
+        } else {
+          delete this.rates[this.id];
+          localStorage["rates"] = JSON.stringify(this.rates);
+        }
+      }
+    }
+    return false;
+  }
+}
 export class comment {
   id;
   content;
@@ -10,7 +46,9 @@ export class comment {
 
   constructor(id, content, score, user, date, you, replyTo = null) {
     this.id = id;
-    if (!this.id) {
+    if (this.id) {
+      window.localStorage["lastId"] = this.id;
+    } else {
       this.#getId();
     }
     this.content = content;
@@ -19,13 +57,15 @@ export class comment {
     this.date = date;
     this.replyTo = replyTo;
     this.you = you;
+    this.getLocal = new getFromLocal(this.id);
   }
   #getId() {
-    this.id =
-      Math.max(
-        ...[...document.querySelectorAll(".box")].map((ele) => +ele.id)
-      ) + 1;
-    console.log(this.id);
+    if (window.localStorage.getItem("lastId")) {
+      this.id = ++window.localStorage["lastId"];
+    } else {
+      this.id = 1;
+      window.localStorage["lastId"] = this.id;
+    }
   }
   createComment() {
     this.box = document.createElement("div");
@@ -53,6 +93,7 @@ export class comment {
       return this.box;
     }
   }
+
   #createBtns() {
     this.btns = document.createElement("div");
     this.btns.classList.add("btns");
@@ -113,13 +154,16 @@ export class comment {
     this.contentP = document.createElement("p");
     this.contentP.classList.add("content");
     this.contentP.dataset.replyTo = this.replyTo;
-    this.contentP.innerHTML = `${
-      this.replyTo
-        ? '<a href="#" class="mention">@' + this.replyTo + "</a> "
-        : ""
-    }
+    // check if there is updates in local Storage
+    if (!this.getLocal.checkUpdate(this.contentP)) {
+      this.contentP.innerHTML = `${
+        this.replyTo
+          ? '<a href="#" class="mention">@' + this.replyTo + "</a> "
+          : ""
+      }
       ${this.content}
-    `;
+      `;
+    }
     this.commentBody.append(this.info, this.contentP);
     return this.commentBody;
   }
@@ -134,7 +178,6 @@ export class comment {
       this.rateEvent.rate(1);
     });
     this.span = document.createElement("span");
-    this.span.innerText = this.score;
     this.decrease = document.createElement("a");
     this.decrease.classList.add("decrease");
     this.decrease.innerHTML = '<i class="fa-solid fa-minus"></i>';
@@ -143,6 +186,9 @@ export class comment {
       this.rateEvent.rate(-1);
     });
     this.rate.append(this.increase, this.span, this.decrease);
+    if (!this.getLocal.checkRate(this.box, this.rate, this.score)) {
+      this.span.innerText = this.score;
+    }
     return this.rate;
   }
 }
@@ -229,6 +275,7 @@ export class events {
         true,
         this.replyTo
       );
+      this.addToLocal("new");
       this.box = this.comApp.createComment();
       // append comment box
       if (this.replyTo) {
@@ -242,6 +289,50 @@ export class events {
         this.textarea.value = "";
       }
       this.box.scrollIntoView();
+    }
+  }
+  addToLocal(type) {
+    if (type === "new") {
+      this.oldLocal = window.localStorage.getItem("new");
+      this.newCom = {
+        id: this.comApp.id,
+        content: this.comApp.content,
+        createdAt: this.comApp.date,
+        score: this.comApp.score,
+        user: this.comApp.user,
+        replyingTo: this.comApp.replyTo,
+      };
+      if (this.oldLocal) {
+        this.oldComs = JSON.parse(this.oldLocal);
+        this.newCom = [...this.oldComs, this.newCom];
+        window.localStorage.setItem("new", JSON.stringify(this.newCom));
+      } else {
+        window.localStorage.setItem("new", JSON.stringify([this.newCom]));
+      }
+    } else if (type === "delete") {
+      this.oldLocal = window.localStorage["dels"];
+      if (this.oldLocal) {
+        window.localStorage["dels"] = this.oldLocal + "," + this.box.id;
+      } else {
+        window.localStorage["dels"] = this.box.id;
+      }
+    } else if (type === "update") {
+      this.oldLocal = window.localStorage["updates"];
+      this.newUpdate = { [this.box.id]: this.pContent.innerHTML.trim() };
+      if (this.oldLocal) {
+        this.newUpdate = { ...JSON.parse(this.oldLocal), ...this.newUpdate };
+      }
+      window.localStorage["updates"] = JSON.stringify(this.newUpdate);
+    } else if (type === "rate") {
+      this.oldLocal = localStorage["rates"];
+      this.newRate = { [this.box.id]: this.span.innerText };
+      if (this.oldLocal) {
+        this.newRate = {
+          ...JSON.parse(this.oldLocal),
+          ...this.newRate,
+        };
+      }
+      localStorage["rates"] = JSON.stringify(this.newRate);
     }
   }
   #validateTextarea() {
@@ -346,6 +437,7 @@ export class events {
       this.replyTo ? `<a href="#" class="mention">@${this.replyTo}</a>` : ""
     } ${this.content}
     `;
+    this.addToLocal("update");
     this.#resetEdit();
   }
 
@@ -358,11 +450,13 @@ export class events {
   }
   delete() {
     this.deleteBtn = this.ev.currentTarget;
+    this.box = this.deleteBtn.closest(".box");
     this.OnAccept = () => {
+      this.addToLocal("delete");
       if (this.deleteBtn.closest(".replys")) {
-        this.deleteBtn.closest(".box").remove();
+        this.box.remove();
       } else {
-        this.deleteBtn.closest(".comment").remove();
+        this.box.closest(".comment").remove();
       }
     };
     this.#confirm(
@@ -446,6 +540,7 @@ export class events {
         this.box.classList.add("rated");
         this.btn.classList.add("active");
         this.span.innerText = +this.span.innerText + bonus;
+        this.addToLocal("rate");
       } else {
         // rated
 
@@ -456,6 +551,7 @@ export class events {
             this.btn.classList.remove("active");
             this.box.classList.remove("rated");
             this.span.innerText = +this.span.innerText - bonus;
+            this.addToLocal("rate");
           };
         } else {
           this.title = "change rate of the comment";
