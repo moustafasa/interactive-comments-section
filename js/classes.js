@@ -47,10 +47,17 @@ export class comment {
   constructor(id, content, score, user, date, you, replyTo = null) {
     this.id = id;
     if (this.id) {
-      window.localStorage["lastId"] = this.id;
+      if (localStorage["lastId"]) {
+        if (+window.localStorage["lastId"] < this.id) {
+          window.localStorage["lastId"] = this.id;
+        }
+      } else {
+        localStorage["lastId"] = this.id;
+      }
     } else {
       this.#getId();
     }
+    // console.log(this.id);
     this.content = content;
     this.score = score;
     this.user = user;
@@ -63,6 +70,7 @@ export class comment {
     if (window.localStorage.getItem("lastId")) {
       this.id = ++window.localStorage["lastId"];
     } else {
+      console.log(this.id);
       this.id = 1;
       window.localStorage["lastId"] = this.id;
     }

@@ -32,20 +32,43 @@ fetch("data.json")
     let newComments = localStorage["new"];
     if (newComments) {
       JSON.parse(newComments).forEach((com) => {
+        // check if it deleted or not
         if (!dels(com.id)) {
           let comApp = createComm(com);
+          // check if it reply or comment
           if (comApp.replyTo) {
+            // if it reply not comment
             let box = document.querySelector(
               `.box[data-name='${comApp.replyTo}']`
             );
+            // check if it reply to another reply or to comment
             if (box.closest(".replys")) {
+              // if it reply to another reply
               box.closest(".replys").append(comApp.createComment());
             } else {
-              document
-                .querySelector(".add-comment")
-                .before(comApp.createComment());
+              // if it reply to comment
+              box
+                .closest(".comment")
+                .querySelector(".replys")
+                .append(comApp.createComment());
             }
+          } else {
+            // if it comment not reply
+            document
+              .querySelector(".add-comment")
+              .before(comApp.createComment());
           }
+        } else {
+          // if deleted
+          let newLocal = JSON.parse(localStorage["new"]);
+          // delete element from new in localstorage
+          newLocal.splice(newLocal.indexOf(com), 1);
+          localStorage["new"] = JSON.stringify(newLocal);
+          // delete its id from dels in localstorage
+          localStorage["dels"] = localStorage["dels"]
+            .split(",")
+            .filter((ele) => ele != com.id)
+            .join(",");
         }
       });
     }
